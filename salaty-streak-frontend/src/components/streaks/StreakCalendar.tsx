@@ -2,31 +2,24 @@
 
 import { useDashboard } from '@/hooks/useDashboard';
 import { usePrayerHistory } from '@/hooks/usePrayerHistory';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { StreakCard } from '@/components/dashboard/StreakCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PRAYER_LABELS, STATUS_COLORS, STATUS_LABELS, PRAYER_ICONS } from '@/lib/constants';
-import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
 export function StreakCalendar() {
   const { data: dashboard } = useDashboard();
   const { prayers } = usePrayerHistory(format(new Date(), 'yyyy-MM'));
 
-  // Group by date and calculate streak status
-  const dayMap = new Map<string, { total: number; points: number; hasStreak: boolean }>();
+  const dayMap = new Map<string, { total: number; points: number }>();
 
-  // Build a simple calendar grid for the current month
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
 
-  // Count prayers per day from history
   for (const prayer of prayers) {
     const dateKey = prayer.date.split('T')[0];
-    const existing = dayMap.get(dateKey) || { total: 0, points: 0, hasStreak: false };
+    const existing = dayMap.get(dateKey) || { total: 0, points: 0 };
     existing.total++;
     existing.points += prayer.points;
     dayMap.set(dateKey, existing);
@@ -67,30 +60,29 @@ export function StreakCalendar() {
         </div>
         {/* Calendar grid */}
         <div className="grid grid-cols-7 gap-1">
-          {/* Empty cells for days before the 1st */}
           {Array.from({ length: firstDay }).map((_, i) => (
             <div key={`empty-${i}`} />
           ))}
           {days.map((day) => (
             <div
               key={day.day}
-              className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs ${
+              className={`min-h-10 min-w-10 rounded-lg flex flex-col items-center justify-center text-xs ${
                 day.day === today
-                  ? 'ring-2 ring-emerald-500'
+                  ? 'ring-2 ring-primary'
                   : ''
               } ${
                 day.hasData
                   ? day.prayers >= 5
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300'
+                    ? 'bg-status-ontime-bg text-status-ontime'
                     : day.prayers > 0
-                      ? 'bg-amber-50 text-amber-700 dark:bg-amber-900 dark:text-amber-300'
+                      ? 'bg-status-late-bg text-status-late'
                       : ''
                   : 'bg-muted/30 text-muted-foreground'
               }`}
             >
               <span className="font-medium">{day.day}</span>
               {day.hasData && (
-                <span className="text-[10px] leading-none">{day.points}pts</span>
+                <span className="text-[10px] leading-none">{day.points}</span>
               )}
             </div>
           ))}

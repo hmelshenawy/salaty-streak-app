@@ -10,15 +10,6 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3100
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=n8n_default"
-      - "traefik.http.routers.salaty-api.rule=Host(`salaty.hmelshenawy.com`) && (PathPrefix(`/auth`) || PathPrefix(`/prayers`) || PathPrefix(`/dashboard`))"
-      - "traefik.http.routers.salaty-api.priority=100"
-      - "traefik.http.routers.salaty-api.entrypoints=websecure"
-      - "traefik.http.routers.salaty-api.tls=true"
-      - "traefik.http.routers.salaty-api.tls.certresolver=mytlschallenge"
-      - "traefik.http.services.salaty-api.loadbalancer.server.port=3100"
     networks:
       - n8n_default
 
@@ -37,7 +28,6 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=n8n_default"
       - "traefik.http.routers.salaty-web.rule=Host(`salaty.hmelshenawy.com`)"
-      - "traefik.http.routers.salaty-web.priority=1"
       - "traefik.http.routers.salaty-web.entrypoints=websecure"
       - "traefik.http.routers.salaty-web.tls=true"
       - "traefik.http.routers.salaty-web.tls.certresolver=mytlschallenge"

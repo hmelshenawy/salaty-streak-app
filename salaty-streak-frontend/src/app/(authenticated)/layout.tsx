@@ -1,5 +1,6 @@
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { Topbar } from '@/components/layout/Topbar';
+import { BottomNav } from '@/components/layout/BottomNav';
 
 export default function AuthenticatedLayout({
   children,
@@ -8,13 +9,21 @@ export default function AuthenticatedLayout({
 }) {
   return (
     <div className="flex h-screen">
+      {/* Desktop sidebar */}
       <AppSidebar />
+
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Desktop topbar */}
         <Topbar />
-        <main className="flex-1 overflow-auto p-4 md:p-6">
+
+        {/* Main content — extra bottom padding on mobile for bottom nav */}
+        <main className="flex-1 overflow-auto px-4 py-4 pb-24 md:p-6 md:pb-6">
           {children}
         </main>
       </div>
+
+      {/* Mobile bottom navigation */}
+      <BottomNav />
     </div>
   );
 }

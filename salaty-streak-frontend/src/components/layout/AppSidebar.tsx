@@ -2,23 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import {
-  LayoutDashboard,
-  BookOpen,
-  Flame,
-  Settings,
-  LogOut,
-} from 'lucide-react';
+import { Home, Flame, Clock, Settings, Moon, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Prayers', href: '/prayers', icon: BookOpen },
-  { name: 'Streaks', href: '/streaks', icon: Flame },
-  { name: 'Settings', href: '/settings', icon: Settings },
+const navItems = [
+  { href: '/dashboard', label: 'Home', icon: Home },
+  { href: '/streaks', label: 'Streaks', icon: Flame },
+  { href: '/prayers/history', label: 'History', icon: Clock },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -26,40 +19,44 @@ export function AppSidebar() {
   const { user, logout } = useAuth();
 
   return (
-    <aside className="hidden md:flex md:w-64 md:flex-col md:border-r bg-card">
-      <div className="flex h-16 items-center px-6 border-b">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <Flame className="h-6 w-6 text-emerald-500" />
-          <span className="text-xl font-bold">Salaty Streak</span>
-        </Link>
+    <aside className="hidden md:flex md:w-60 md:flex-col md:border-r bg-card">
+      {/* Logo */}
+      <div className="flex h-14 items-center gap-2 px-5 border-b">
+        <Moon className="h-6 w-6 text-primary" />
+        <span className="text-lg font-semibold">Salaty Streak</span>
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {navigation.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+        {navItems.map((item) => {
+          const isActive =
+            item.href === '/dashboard'
+              ? pathname === '/dashboard' || pathname === '/prayers'
+              : pathname.startsWith(item.href);
+          const Icon = item.icon;
+
           return (
             <Link
-              key={item.name}
+              key={item.href}
               href={item.href}
-              className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-              )}
+                  ? 'bg-primary/10 text-primary border-l-2 border-primary -ml-0.5 pl-2.5'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+              }`}
             >
-              <item.icon className="h-5 w-5" />
-              {item.name}
+              <Icon className="h-4 w-4" />
+              {item.label}
             </Link>
           );
         })}
       </nav>
 
-      <Separator />
-
-      <div className="p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 text-sm font-bold">
+      {/* User Section */}
+      <div className="px-3 pb-4">
+        <Separator className="mb-3" />
+        <div className="flex items-center gap-3 px-3 py-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold">
             {user?.name?.charAt(0)?.toUpperCase() || '?'}
           </div>
           <div className="flex-1 min-w-0">
@@ -68,13 +65,10 @@ export function AppSidebar() {
           </div>
         </div>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="w-full"
-          onClick={() => {
-            logout();
-            window.location.href = '/login';
-          }}
+          className="w-full mt-1 text-muted-foreground hover:text-destructive"
+          onClick={() => logout()}
         >
           <LogOut className="h-4 w-4 mr-2" />
           Sign Out

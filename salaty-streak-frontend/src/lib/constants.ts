@@ -26,6 +26,14 @@ export const PRAYER_TIMES: Record<PrayerName, string> = {
   ISHA: 'Night',
 };
 
+export const PRAYER_ICON_NAMES: Record<PrayerName, 'Sunrise' | 'Sun' | 'CloudSun' | 'Sunset' | 'Moon'> = {
+  FAJR: 'Sunrise',
+  DHUHR: 'Sun',
+  ASR: 'CloudSun',
+  MAGHRIB: 'Sunset',
+  ISHA: 'Moon',
+};
+
 export const PRAYER_ICONS: Record<PrayerName, string> = {
   FAJR: '🌅',
   DHUHR: '☀️',
@@ -41,9 +49,21 @@ export const STATUS_LABELS: Record<PrayerStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<PrayerStatus, string> = {
-  ON_TIME: 'bg-emerald-500',
-  LATE: 'bg-amber-500',
-  MISSED: 'bg-red-500',
+  ON_TIME: 'bg-status-ontime',
+  LATE: 'bg-status-late',
+  MISSED: 'bg-status-missed',
+};
+
+export const STATUS_BG_COLORS: Record<PrayerStatus, string> = {
+  ON_TIME: 'bg-status-ontime-bg',
+  LATE: 'bg-status-late-bg',
+  MISSED: 'bg-status-missed-bg',
+};
+
+export const STATUS_TEXT_COLORS: Record<PrayerStatus, string> = {
+  ON_TIME: 'text-status-ontime',
+  LATE: 'text-status-late',
+  MISSED: 'text-status-missed',
 };
 
 export const POINTS_RULES = {

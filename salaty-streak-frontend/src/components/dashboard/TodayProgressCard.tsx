@@ -11,9 +11,9 @@ interface TodayProgressCardProps {
 }
 
 function PrayerStatusIcon({ status }: { status: TodayPrayer['status'] }) {
-  if (status === 'ON_TIME') return <Check className="h-4 w-4 text-emerald-500" />;
-  if (status === 'LATE') return <Clock className="h-4 w-4 text-amber-500" />;
-  if (status === 'MISSED') return <X className="h-4 w-4 text-red-500" />;
+  if (status === 'ON_TIME') return <Check className="h-4 w-4 text-status-ontime" />;
+  if (status === 'LATE') return <Clock className="h-4 w-4 text-status-late" />;
+  if (status === 'MISSED') return <X className="h-4 w-4 text-status-missed" />;
   return <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30" />;
 }
 
@@ -50,7 +50,7 @@ export function TodayProgressCard({ prayers }: TodayProgressCardProps) {
                       {STATUS_LABELS[prayer.status]}
                     </Badge>
                     {prayer.inMosque && (
-                      <Badge variant="outline" className="text-emerald-600 border-emerald-300">
+                      <Badge variant="outline" className="text-primary border-primary/30">
                         🕌
                       </Badge>
                     )}

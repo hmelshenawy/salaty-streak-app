@@ -65,7 +65,7 @@ export function PrayerLogForm({ onLogged }: PrayerLogFormProps) {
           <div className="space-y-2">
             <Label>Prayer</Label>
             <Select value={prayerName} onValueChange={(v) => setPrayerName(v as PrayerName)}>
-              <SelectTrigger>
+              <SelectTrigger className="h-12">
                 <SelectValue placeholder="Select prayer" />
               </SelectTrigger>
               <SelectContent>
@@ -81,7 +81,7 @@ export function PrayerLogForm({ onLogged }: PrayerLogFormProps) {
           <div className="space-y-2">
             <Label>Status</Label>
             <Select value={status} onValueChange={(v) => setStatus(v as PrayerStatus)}>
-              <SelectTrigger>
+              <SelectTrigger className="h-12">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
@@ -96,9 +96,9 @@ export function PrayerLogForm({ onLogged }: PrayerLogFormProps) {
             <button
               type="button"
               onClick={() => setInMosque(!inMosque)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors h-12 ${
                 inMosque
-                  ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                  ? 'border-primary bg-primary/10 text-primary'
                   : 'border-border text-muted-foreground hover:border-muted-foreground'
               }`}
             >
@@ -108,7 +108,7 @@ export function PrayerLogForm({ onLogged }: PrayerLogFormProps) {
 
           <Button
             type="submit"
-            className="w-full bg-emerald-600 hover:bg-emerald-700"
+            className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
             disabled={!prayerName || !status || loading}
           >
             {loading ? 'Logging...' : 'Log Prayer'}

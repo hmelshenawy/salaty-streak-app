@@ -17,11 +17,11 @@ export function CompletionRateCard({ completionRate }: CompletionRateCardProps) 
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-            <Target className="h-6 w-6 text-blue-500" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+            <Target className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <div className="text-3xl font-bold">{completionRate}%</div>
+            <div className="text-3xl font-bold">{completionRate.toFixed(1)}%</div>
             <p className="text-xs text-muted-foreground">this month</p>
           </div>
         </div>

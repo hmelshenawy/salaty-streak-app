@@ -1,7 +1,7 @@
 'use client';
 
 import { PrayerLog } from '@/types/prayer';
-import { PRAYER_LABELS, PRAYER_ICONS, STATUS_LABELS } from '@/lib/constants';
+import { PRAYER_LABELS, PRAYER_ICONS } from '@/lib/constants';
 import { PrayerStatusBadge } from './PrayerStatusBadge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -29,13 +29,13 @@ export function PrayerRow({ prayer, onDeleted }: PrayerRowProps) {
   };
 
   return (
-    <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-muted/50">
+    <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-card ring-1 ring-foreground/5">
       <div className="flex items-center gap-3">
         <span className="text-lg">{PRAYER_ICONS[prayer.prayerName]}</span>
         <div>
           <span className="font-medium">{PRAYER_LABELS[prayer.prayerName]}</span>
           {prayer.inMosque && (
-            <Badge variant="outline" className="ml-2 text-emerald-600 border-emerald-300">
+            <Badge variant="outline" className="ml-2 text-primary border-primary/30">
               🕌 Mosque
             </Badge>
           )}
@@ -51,7 +51,7 @@ export function PrayerRow({ prayer, onDeleted }: PrayerRowProps) {
           size="icon"
           onClick={handleDelete}
           disabled={deleting}
-          className="text-muted-foreground hover:text-destructive"
+          className="text-muted-foreground hover:text-destructive h-12 w-12"
         >
           <Trash2 className="h-4 w-4" />
         </Button>

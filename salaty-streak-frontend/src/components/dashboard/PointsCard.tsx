@@ -17,8 +17,8 @@ export function PointsCard({ monthlyPoints }: PointsCardProps) {
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
-            <Star className="h-6 w-6 text-amber-500" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/15">
+            <Star className="h-6 w-6 text-accent-foreground" />
           </div>
           <div>
             <div className="text-3xl font-bold">{monthlyPoints}</div>

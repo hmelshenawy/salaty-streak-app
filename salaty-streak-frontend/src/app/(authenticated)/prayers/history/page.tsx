@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { usePrayerHistory } from '@/hooks/usePrayerHistory';
-import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PrayerRow } from '@/components/prayers/PrayerRow';
@@ -23,11 +22,10 @@ function getMonthOptions() {
 export default function PrayerHistoryPage() {
   const currentMonth = format(new Date(), 'yyyy-MM');
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const { prayers, loading, error, refresh } = usePrayerHistory(selectedMonth);
+  const { prayers, loading, refresh } = usePrayerHistory(selectedMonth);
 
   const monthOptions = getMonthOptions();
 
-  // Group prayers by date
   const groupedByDate = prayers.reduce((acc, prayer) => {
     const date = prayer.date.split('T')[0];
     if (!acc[date]) acc[date] = [];
@@ -36,10 +34,11 @@ export default function PrayerHistoryPage() {
   }, {} as Record<string, typeof prayers>);
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Prayer History" description="View your past prayer logs">
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold">History</h1>
         <Select value={selectedMonth} onValueChange={(v) => { setSelectedMonth(v ?? currentMonth); }}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full md:w-48 h-12">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -50,11 +49,11 @@ export default function PrayerHistoryPage() {
             ))}
           </SelectContent>
         </Select>
-      </PageHeader>
+      </div>
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       ) : prayers.length === 0 ? (
         <Card>
@@ -63,17 +62,17 @@ export default function PrayerHistoryPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {Object.entries(groupedByDate)
             .sort(([a], [b]) => b.localeCompare(a))
             .map(([date, datePrayers]) => (
-              <Card key={date}>
-                <CardHeader className="pb-2">
+              <Card key={date} className="overflow-hidden">
+                <CardHeader className="pb-2 bg-muted/30">
                   <CardTitle className="text-sm font-medium">
                     {format(new Date(date + 'T00:00:00'), 'EEEE, MMMM d, yyyy')}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-2 pt-3">
                   {datePrayers.map((prayer) => (
                     <PrayerRow key={prayer.id} prayer={prayer} onDeleted={refresh} />
                   ))}
