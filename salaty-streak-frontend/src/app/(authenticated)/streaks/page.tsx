@@ -2,6 +2,8 @@
 
 import { useDashboard } from '@/hooks/useDashboard';
 import { StreakCalendar } from '@/components/streaks/StreakCalendar';
+import { NextMilestoneCard } from '@/components/streaks/NextMilestoneCard';
+import { MilestoneList } from '@/components/streaks/MilestoneList';
 import { Flame, Trophy } from 'lucide-react';
 
 export default function StreaksPage() {
@@ -43,8 +45,17 @@ export default function StreaksPage() {
         </div>
       </div>
 
+      {/* Next milestone */}
+      <NextMilestoneCard nextMilestone={data.nextMilestone} />
+
       {/* Calendar */}
       <StreakCalendar />
+
+      {/* Milestones */}
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Milestones</h2>
+        <MilestoneList />
+      </div>
     </div>
   );
 }

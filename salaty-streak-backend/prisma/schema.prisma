@@ -44,6 +44,7 @@ model User {
 
   prayerLogs     PrayerLog[]
   dailySummaries DailySummary[]
+  milestones     UserMilestone[]
 }
 
 model PrayerLog {
@@ -79,4 +80,34 @@ model DailySummary {
 
   @@unique([userId, date])
   @@index([userId, date])
+}
+
+model Milestone {
+  id             String         @id @default(uuid())
+  title          String         @unique
+  targetDays     Int            @unique
+  description    String?
+  icon           String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  userMilestones UserMilestone[]
+}
+
+model UserMilestone {
+  id          String    @id @default(uuid())
+  userId      String
+  milestoneId String
+  reward      String?
+  achievedAt  DateTime  @default(now())
+  viewedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, milestoneId])
+  @@index([userId])
+  @@index([userId, viewedAt])
 }

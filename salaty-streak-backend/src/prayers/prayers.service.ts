@@ -11,12 +11,14 @@ import { UpdatePrayerLogDto } from './dto/update-prayer-log.dto';
 import { calculatePrayerPoints } from './utils/points-calculator';
 import { getTodayInTimezone, getMonthRange, parseDateString } from '../common/utils/date.utils';
 import { DailySummaryService } from '../daily-summary/daily-summary.service';
+import { MilestonesService } from '../milestones/milestones.service';
 
 @Injectable()
 export class PrayersService {
   constructor(
     private prisma: PrismaService,
     private dailySummaryService: DailySummaryService,
+    private milestonesService: MilestonesService,
   ) {}
 
   async create(userId: string, dto: CreatePrayerLogDto) {
@@ -47,6 +49,7 @@ export class PrayersService {
       });
 
       await this.dailySummaryService.recalculate(userId, date);
+      await this.milestonesService.checkMilestones(userId).catch(() => {});
 
       return prayerLog;
     } catch (error: any) {
@@ -141,6 +144,7 @@ export class PrayersService {
     });
 
     await this.dailySummaryService.recalculate(userId, existing.date);
+    await this.milestonesService.checkMilestones(userId).catch(() => {});
 
     return updated;
   }
@@ -163,5 +167,6 @@ export class PrayersService {
     });
 
     await this.dailySummaryService.recalculate(userId, existing.date);
+    await this.milestonesService.checkMilestones(userId).catch(() => {});
   }
 }

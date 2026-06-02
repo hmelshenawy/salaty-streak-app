@@ -1,4 +1,5 @@
 import { PrayerName, PrayerStatus } from './prayer';
+import { NextMilestone } from './milestone';
 
 export interface TodayPrayer {
   prayerName: PrayerName;
@@ -14,4 +15,5 @@ export interface DashboardResponse {
   monthlyPoints: number;
   completionRate: number;
   todayPrayers: TodayPrayer[];
+  nextMilestone: NextMilestone | null;
 }

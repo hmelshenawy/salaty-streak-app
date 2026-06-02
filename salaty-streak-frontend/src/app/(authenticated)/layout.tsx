@@ -1,6 +1,7 @@
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { Topbar } from '@/components/layout/Topbar';
 import { BottomNav } from '@/components/layout/BottomNav';
+import { MilestoneCelebration } from '@/components/streaks/MilestoneCelebration';
 
 export default function AuthenticatedLayout({
   children,
@@ -24,6 +25,9 @@ export default function AuthenticatedLayout({
 
       {/* Mobile bottom navigation */}
       <BottomNav />
+
+      {/* Milestone celebration popup (listens across all pages) */}
+      <MilestoneCelebration />
     </div>
   );
 }

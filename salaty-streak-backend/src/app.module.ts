@@ -9,6 +9,7 @@ import { StreaksModule } from './streaks/streaks.module';
 import { UsersModule } from './users/users.module';
 import { DailySummaryModule } from './daily-summary/daily-summary.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { MilestonesModule } from './milestones/milestones.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     PrayersModule,
     StreaksModule,
     DailySummaryModule,
+    MilestonesModule,
     DashboardModule,
   ],
   controllers: [AppController],

@@ -2,6 +2,7 @@
 
 import { Flame, Star, Target } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnviewedMilestones } from '@/hooks/useUnviewedMilestones';
 import { PrayerCard } from './PrayerCard';
 import { TodayPrayer } from '@/types/dashboard';
 
@@ -21,7 +22,14 @@ export function PrayerCardList({
   onPrayerLogged,
 }: PrayerCardListProps) {
   const { user } = useAuth();
+  const { checkAgain: checkMilestones } = useUnviewedMilestones();
   const completedCount = prayers.filter((p) => p.status).length;
+
+  const handlePrayerLogged = () => {
+    onPrayerLogged();
+    // Re-check for milestone achievements after prayer mutation
+    setTimeout(() => checkMilestones(), 1500);
+  };
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -53,7 +61,7 @@ export function PrayerCardList({
           <PrayerCard
             key={prayer.prayerName}
             prayer={prayer}
-            onLogged={onPrayerLogged}
+            onLogged={handlePrayerLogged}
           />
         ))}
       </div>

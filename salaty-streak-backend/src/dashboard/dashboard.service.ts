@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StreaksService } from '../streaks/streaks.service';
+import { MilestonesService } from '../milestones/milestones.service';
 import { getTodayInTimezone, getMonthRange } from '../common/utils/date.utils';
 import { PrayerName } from '@prisma/client';
 
@@ -17,6 +18,7 @@ export class DashboardService {
   constructor(
     private prisma: PrismaService,
     private streaksService: StreaksService,
+    private milestonesService: MilestonesService,
   ) {}
 
   async getDashboard(userId: string) {
@@ -80,12 +82,16 @@ export class DashboardService {
       };
     });
 
+    // Get next milestone
+    const nextMilestone = await this.milestonesService.getNextMilestone(userId);
+
     return {
       currentStreak,
       bestStreak,
       monthlyPoints,
       completionRate,
       todayPrayers,
+      nextMilestone,
     };
   }
 }
