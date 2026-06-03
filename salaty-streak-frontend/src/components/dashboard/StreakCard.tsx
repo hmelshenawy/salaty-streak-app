@@ -12,7 +12,7 @@ export function StreakCard({ currentStreak, bestStreak }: StreakCardProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-base font-medium text-muted-foreground">
           Current Streak
         </CardTitle>
       </CardHeader>
@@ -23,7 +23,7 @@ export function StreakCard({ currentStreak, bestStreak }: StreakCardProps) {
           </div>
           <div>
             <div className="text-3xl font-bold">{currentStreak}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Best: {bestStreak} day{bestStreak !== 1 ? 's' : ''}
             </p>
           </div>

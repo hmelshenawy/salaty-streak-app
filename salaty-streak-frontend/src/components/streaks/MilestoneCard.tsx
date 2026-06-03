@@ -52,7 +52,7 @@ export function MilestoneCard({ milestone, currentStreak }: MilestoneCardProps) 
         <div className="flex items-center gap-2">
           <p className="font-medium text-sm">{milestone.title}</p>
           {milestone.completed && (
-            <Badge variant="secondary" className="bg-primary/10 text-primary border-0 text-[10px] px-1.5">
+            <Badge variant="secondary" className="bg-primary/10 text-primary border-0 text-xs px-1.5">
               {milestone.targetDays} days
             </Badge>
           )}
@@ -69,7 +69,7 @@ export function MilestoneCard({ milestone, currentStreak }: MilestoneCardProps) 
                 style={{ width: `${Math.max(progress * 100, 2)}%` }}
               />
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {remainingDays > 0 ? `${remainingDays} day${remainingDays !== 1 ? 's' : ''} to go` : 'Almost there!'}
             </p>
           </div>

@@ -72,7 +72,7 @@ export function PrayerCard({ prayer, onLogged }: PrayerCardProps) {
             {STATUS_LABELS[prayer.status]}
           </Badge>
           {prayer.inMosque && (
-            <Badge variant="secondary" className="bg-primary/10 text-primary border-0 text-[10px] px-1.5">
+            <Badge variant="secondary" className="bg-primary/10 text-primary border-0 text-xs px-1.5">
              🕌
             </Badge>
           )}
