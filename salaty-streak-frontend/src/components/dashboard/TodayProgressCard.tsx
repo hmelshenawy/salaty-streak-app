@@ -31,7 +31,7 @@ export function TodayProgressCard({ prayers }: TodayProgressCardProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {prayers?.map((prayer ) => (
+          {prayers.map((prayer) => (
             <div
               key={prayer.prayerName}
               className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/50"
