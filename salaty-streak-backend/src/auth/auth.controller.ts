@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Put,
   Body,
   Request,
 } from '@nestjs/common';
@@ -29,5 +30,13 @@ export class AuthController {
   @Get('profile')
   getProfile(@Request() req: { user: { sub: string } }) {
     return this.authService.getProfile(req.user.sub);
+  }
+
+  @Put('profile')
+  updateProfile(
+    @Request() req: { user: { sub: string } },
+    @Body() body: { name?: string; timezone?: string; latitude?: number; longitude?: number },
+  ) {
+    return this.authService.updateProfile(req.user.sub, body);
   }
 }

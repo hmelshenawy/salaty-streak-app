@@ -39,6 +39,8 @@ export class AuthService {
         email: true,
         gender: true,
         timezone: true,
+        latitude: true,
+        longitude: true,
         createdAt: true,
       },
     });
@@ -77,6 +79,8 @@ export class AuthService {
         email: true,
         gender: true,
         timezone: true,
+        latitude: true,
+        longitude: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -87,6 +91,24 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async updateProfile(userId: string, data: { name?: string; timezone?: string; latitude?: number; longitude?: number }) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        gender: true,
+        timezone: true,
+        latitude: true,
+        longitude: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
   }
 
   private generateToken(userId: string, email: string): string {

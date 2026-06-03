@@ -4,18 +4,70 @@ import { Flame, Star, Target } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnviewedMilestones } from '@/hooks/useUnviewedMilestones';
 import { PrayerCard } from './PrayerCard';
-import { TodayPrayer } from '@/types/dashboard';
+import { TodayPrayer, PrayerTimeEntry } from '@/types/dashboard';
+import { PrayerName, PrayerStatus } from '@/types/prayer';
+import { PRAYER_ORDER } from '@/lib/constants';
 
 interface PrayerCardListProps {
   prayers: TodayPrayer[];
+  prayerTimes: PrayerTimeEntry[];
   currentStreak: number;
   monthlyPoints: number;
   completionRate: number;
   onPrayerLogged: () => void;
 }
 
+/**
+ * Determine which prayers are "past" (their time window has ended).
+ * A prayer is past if the current time is after the NEXT prayer's start time,
+ * or if it's Isha and current time is past Isha + a buffer.
+ * Simplified: a prayer is past when we've moved past its time slot.
+ */
+function getPastPrayers(prayerTimes: PrayerTimeEntry[]): Set<PrayerName> {
+  const now = new Date();
+  const past = new Set<PrayerName>();
+
+  if (prayerTimes.length === 0) return past;
+
+  // Parse prayer times into minutes-since-midnight for comparison
+  const timeSlots = prayerTimes.map((pt) => {
+    const [h, m] = pt.time.split(':').map(Number);
+    return {
+      prayerName: pt.prayerName,
+      minutes: h * 60 + m,
+    };
+  });
+
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  // A prayer is "past" when current time exceeds the next prayer's start time
+  // For Isha, it's past when it's after Isha time + 2 hours buffer
+  for (let i = 0; i < timeSlots.length; i++) {
+    const nextSlotMinutes = i < timeSlots.length - 1
+      ? timeSlots[i + 1].minutes
+      : timeSlots[i].minutes + 120; // 2hr after Isha
+
+    if (currentMinutes >= nextSlotMinutes) {
+      past.add(timeSlots[i].prayerName);
+    }
+  }
+
+  // Special case: before Fajr, no prayers are past
+  // Between Isha and midnight (after Fajr next day conceptually), Isha is current
+  // Handle overnight: between Isha and Fajr, Isha is NOT past yet
+  const fajrMinutes = timeSlots.find(t => t.prayerName === 'FAJR')?.minutes ?? 300;
+  if (currentMinutes < fajrMinutes) {
+    // Before Fajr — Isha is still "current" from yesterday perspective
+    // Actually, we consider all prayers still open for today
+    past.clear();
+  }
+
+  return past;
+}
+
 export function PrayerCardList({
   prayers,
+  prayerTimes,
   currentStreak,
   monthlyPoints,
   completionRate,
@@ -27,9 +79,14 @@ export function PrayerCardList({
 
   const handlePrayerLogged = () => {
     onPrayerLogged();
-    // Re-check for milestone achievements after prayer mutation
     setTimeout(() => checkMilestones(), 1500);
   };
+
+  // Build a map of prayer times for quick lookup
+  const prayerTimeMap = new Map(prayerTimes.map(pt => [pt.prayerName, pt.time]));
+
+  // Determine which prayers are past their time slot
+  const pastPrayers = getPastPrayers(prayerTimes);
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -61,6 +118,7 @@ export function PrayerCardList({
           <PrayerCard
             key={prayer.prayerName}
             prayer={prayer}
+            isPast={pastPrayers.has(prayer.prayerName) && !prayer.status}
             onLogged={handlePrayerLogged}
           />
         ))}

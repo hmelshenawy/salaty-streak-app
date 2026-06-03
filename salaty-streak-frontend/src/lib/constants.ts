@@ -42,6 +42,15 @@ export const PRAYER_ICONS: Record<PrayerName, string> = {
   ISHA: '🌙',
 };
 
+/** Order of prayers throughout the day */
+export const PRAYER_ORDER: Record<PrayerName, number> = {
+  FAJR: 0,
+  DHUHR: 1,
+  ASR: 2,
+  MAGHRIB: 3,
+  ISHA: 4,
+};
+
 export const STATUS_LABELS: Record<PrayerStatus, string> = {
   ON_TIME: 'On Time',
   LATE: 'Late',

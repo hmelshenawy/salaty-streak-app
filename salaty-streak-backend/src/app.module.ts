@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { DailySummaryModule } from './daily-summary/daily-summary.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MilestonesModule } from './milestones/milestones.module';
+import { PrayerTimesModule } from './prayer-times/prayer-times.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MilestonesModule } from './milestones/milestones.module';
     StreaksModule,
     DailySummaryModule,
     MilestonesModule,
+    PrayerTimesModule,
     DashboardModule,
   ],
   controllers: [AppController],

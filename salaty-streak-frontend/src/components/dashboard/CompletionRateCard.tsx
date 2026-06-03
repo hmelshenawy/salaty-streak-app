@@ -11,7 +11,7 @@ export function CompletionRateCard({ completionRate }: CompletionRateCardProps) 
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-medium text-muted-foreground">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
           Completion Rate
         </CardTitle>
       </CardHeader>
@@ -22,7 +22,7 @@ export function CompletionRateCard({ completionRate }: CompletionRateCardProps) 
           </div>
           <div>
             <div className="text-3xl font-bold">{completionRate.toFixed(1)}%</div>
-            <p className="text-sm text-muted-foreground">this month</p>
+            <p className="text-xs text-muted-foreground">this month</p>
           </div>
         </div>
       </CardContent>

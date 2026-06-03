@@ -82,7 +82,7 @@ export function StreakCalendar() {
             >
               <span className="font-medium">{day.day}</span>
               {day.hasData && (
-                <span className="text-xs leading-none">{day.points}</span>
+                <span className="text-[10px] leading-none">{day.points}</span>
               )}
             </div>
           ))}

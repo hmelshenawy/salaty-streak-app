@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StreaksService } from '../streaks/streaks.service';
 import { MilestonesService } from '../milestones/milestones.service';
+import { PrayerTimesService } from '../prayer-times/prayer-times.service';
 import { getTodayInTimezone, getMonthRange } from '../common/utils/date.utils';
 import { PrayerName } from '@prisma/client';
 
@@ -19,12 +20,13 @@ export class DashboardService {
     private prisma: PrismaService,
     private streaksService: StreaksService,
     private milestonesService: MilestonesService,
+    private prayerTimesService: PrayerTimesService,
   ) {}
 
   async getDashboard(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { timezone: true },
+      select: { timezone: true, latitude: true, longitude: true },
     });
 
     const timezone = user?.timezone ?? 'Asia/Dubai';
@@ -71,14 +73,24 @@ export class DashboardService {
       where: { userId, date: today },
     });
 
+    // Get prayer times
+    const prayerTimes = await this.prayerTimesService.getPrayerTimes(
+      userId,
+      timezone,
+      user?.latitude ?? undefined,
+      user?.longitude ?? undefined,
+    );
+
     const todayPrayers = ALL_PRAYERS.map((prayerName) => {
       const log = todayLogs.find((l) => l.prayerName === prayerName);
+      const prayerTime = prayerTimes.times.find((t) => t.prayerName === prayerName);
       return {
         prayerName,
         status: log?.status ?? null,
         inMosque: log?.inMosque ?? false,
         points: log?.points ?? 0,
         prayedAt: log?.prayedAt ?? null,
+        prayerTime: prayerTime?.time ?? null,
       };
     });
 
@@ -92,6 +104,10 @@ export class DashboardService {
       completionRate,
       todayPrayers,
       nextMilestone,
+      prayerTimes: prayerTimes.times.map((t) => ({
+        prayerName: t.prayerName,
+        time: t.time,
+      })),
     };
   }
 }

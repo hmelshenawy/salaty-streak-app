@@ -39,6 +39,8 @@ model User {
   password  String
   gender    Gender?
   timezone  String   @default("Asia/Dubai")
+  latitude  Float?
+  longitude Float?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

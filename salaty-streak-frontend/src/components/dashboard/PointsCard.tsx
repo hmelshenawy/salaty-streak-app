@@ -11,7 +11,7 @@ export function PointsCard({ monthlyPoints }: PointsCardProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-medium text-muted-foreground">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
           Monthly Points
         </CardTitle>
       </CardHeader>
@@ -22,7 +22,7 @@ export function PointsCard({ monthlyPoints }: PointsCardProps) {
           </div>
           <div>
             <div className="text-3xl font-bold">{monthlyPoints}</div>
-            <p className="text-sm text-muted-foreground">points this month</p>
+            <p className="text-xs text-muted-foreground">points this month</p>
           </div>
         </div>
       </CardContent>
