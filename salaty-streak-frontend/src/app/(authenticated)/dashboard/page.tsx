@@ -38,6 +38,7 @@ export default function DashboardPage() {
   return (
     <PrayerCardList
       prayers={data.todayPrayers}
+      prayerTimes={data.prayerTimes}
       currentStreak={data.currentStreak}
       monthlyPoints={data.monthlyPoints}
       completionRate={data.completionRate}

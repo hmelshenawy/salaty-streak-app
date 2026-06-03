@@ -114,7 +114,7 @@ export function PrayerCardList({
 
       {/* Prayer cards */}
       <div className="space-y-3">
-        {prayers.map((prayer) => (
+        {prayers.map((prayer ) => (
           <PrayerCard
             key={prayer.prayerName}
             prayer={prayer}
