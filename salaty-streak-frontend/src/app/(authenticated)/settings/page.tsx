@@ -1,64 +1,22 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { User, Mail, Globe, Calendar, LogOut, Moon, Sun, Monitor } from 'lucide-react';
+import { User, Mail, Globe, Calendar, LogOut } from 'lucide-react';
 import { format } from 'date-fns';
-import { useState, useEffect } from 'react';
-import { apiClient } from '@/lib/api';
 
 export default function SettingsPage() {
-  const { user, logout, refreshUser } = useAuth();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { user, logout } = useAuth();
 
   if (!user) return null;
-
-  const themeOptions = [
-    { value: 'dark', label: 'Dark', icon: Moon },
-    { value: 'light', label: 'Light', icon: Sun },
-    { value: 'system', label: 'System', icon: Monitor },
-  ];
 
   return (
     <div className="space-y-5">
       <h1 className="text-xl font-semibold">Settings</h1>
 
-      {/* Theme Selector */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Moon className="h-4 w-4 text-islamic-emerald" />
-            Appearance
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-2">
-            {themeOptions.map(({ value, label, icon: Icon }) => (
-              <Button
-                key={value}
-                variant={mounted && theme === value ? 'default' : 'outline'}
-                className={`h-auto py-3 flex flex-col items-center gap-1.5 ${
-                  mounted && theme === value ? 'bg-primary text-primary-foreground' : ''
-                }`}
-                onClick={() => setTheme(value)}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="text-xs font-medium">{label}</span>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Profile Card */}
       <Card className="overflow-hidden">
         <CardHeader className="bg-muted/30">
           <div className="flex items-center gap-4">
