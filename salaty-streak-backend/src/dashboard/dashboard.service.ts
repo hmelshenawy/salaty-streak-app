@@ -84,6 +84,7 @@ export class DashboardService {
     const todayPrayers = ALL_PRAYERS.map((prayerName) => {
       const log = todayLogs.find((l) => l.prayerName === prayerName);
       const prayerTime = prayerTimes.times.find((t) => t.prayerName === prayerName);
+      const windowMinutes = prayerTime?.windowMinutes ?? 0;
       return {
         prayerName,
         status: log?.status ?? null,
@@ -91,6 +92,16 @@ export class DashboardService {
         points: log?.points ?? 0,
         prayedAt: log?.prayedAt ?? null,
         prayerTime: prayerTime?.time ?? null,
+        prayerTimestamp: prayerTime?.timestamp ?? null,
+        endTime: prayerTime?.endTime ?? null,
+        windowMinutes,
+        periods: windowMinutes > 0
+          ? [
+              { label: 'early', startOffset: 0, endOffset: Math.round(windowMinutes * 0.35) },
+              { label: 'mid', startOffset: Math.round(windowMinutes * 0.35), endOffset: Math.round(windowMinutes * 0.75) },
+              { label: 'late', startOffset: Math.round(windowMinutes * 0.75), endOffset: windowMinutes },
+            ]
+          : [],
       };
     });
 
@@ -107,6 +118,9 @@ export class DashboardService {
       prayerTimes: prayerTimes.times.map((t) => ({
         prayerName: t.prayerName,
         time: t.time,
+        timestamp: t.timestamp,
+        endTime: t.endTime,
+        windowMinutes: t.windowMinutes,
       })),
     };
   }

@@ -1,12 +1,12 @@
 'use client';
 
-import { Flame, Star, Target } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Clock, Flame, Star, Target, TriangleAlert } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnviewedMilestones } from '@/hooks/useUnviewedMilestones';
 import { PrayerCard } from './PrayerCard';
 import { TodayPrayer, PrayerTimeEntry } from '@/types/dashboard';
-import { PrayerName, PrayerStatus } from '@/types/prayer';
-import { PRAYER_ORDER } from '@/lib/constants';
+import { PrayerName } from '@/types/prayer';
 
 interface PrayerCardListProps {
   prayers: TodayPrayer[];
@@ -17,52 +17,140 @@ interface PrayerCardListProps {
   onPrayerLogged: () => void;
 }
 
-/**
- * Determine which prayers are "past" (their time window has ended).
- * A prayer is past if the current time is after the NEXT prayer's start time,
- * or if it's Isha and current time is past Isha + a buffer.
- * Simplified: a prayer is past when we've moved past its time slot.
- */
-function getPastPrayers(prayerTimes: PrayerTimeEntry[]): Set<PrayerName> {
-  const now = new Date();
-  const past = new Set<PrayerName>();
+const PRAYER_DISPLAY: Record<PrayerName, string> = {
+  FAJR: 'Fajr',
+  DHUHR: 'Dhuhr',
+  ASR: 'Asr',
+  MAGHRIB: 'Maghrib',
+  ISHA: 'Isha',
+};
 
+function formatDuration(ms: number) {
+  if (ms <= 0) return 'Now';
+  const totalMinutes = Math.floor(ms / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const seconds = Math.floor((ms % 60000) / 1000);
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+}
+
+function getPastPrayers(prayerTimes: PrayerTimeEntry[]): Set<PrayerName> {
+  const now = Date.now();
+  const past = new Set<PrayerName>();
   if (prayerTimes.length === 0) return past;
 
-  // Parse prayer times into minutes-since-midnight for comparison
-  const timeSlots = prayerTimes.map((pt) => {
-    const [h, m] = pt.time.split(':').map(Number);
-    return {
-      prayerName: pt.prayerName,
-      minutes: h * 60 + m,
-    };
-  });
-
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-  // A prayer is "past" when current time exceeds the next prayer's start time
-  // For Isha, it's past when it's after Isha time + 2 hours buffer
-  for (let i = 0; i < timeSlots.length; i++) {
-    const nextSlotMinutes = i < timeSlots.length - 1
-      ? timeSlots[i + 1].minutes
-      : timeSlots[i].minutes + 120; // 2hr after Isha
-
-    if (currentMinutes >= nextSlotMinutes) {
-      past.add(timeSlots[i].prayerName);
+  for (const prayerTime of prayerTimes) {
+    if (now >= new Date(prayerTime.endTime).getTime()) {
+      past.add(prayerTime.prayerName);
     }
   }
 
-  // Special case: before Fajr, no prayers are past
-  // Between Isha and midnight (after Fajr next day conceptually), Isha is current
-  // Handle overnight: between Isha and Fajr, Isha is NOT past yet
-  const fajrMinutes = timeSlots.find(t => t.prayerName === 'FAJR')?.minutes ?? 300;
-  if (currentMinutes < fajrMinutes) {
-    // Before Fajr — Isha is still "current" from yesterday perspective
-    // Actually, we consider all prayers still open for today
+  const fajr = prayerTimes.find((pt) => pt.prayerName === 'FAJR');
+  if (fajr && now < new Date(fajr.timestamp).getTime()) {
     past.clear();
   }
 
   return past;
+}
+
+function getCurrentOrNextPrayer(prayerTimes: PrayerTimeEntry[]) {
+  const now = Date.now();
+  for (const prayerTime of prayerTimes) {
+    if (now < new Date(prayerTime.endTime).getTime()) return prayerTime;
+  }
+  return null;
+}
+
+function isCurrentPrayer(prayerName: PrayerName, prayerTimes: PrayerTimeEntry[]) {
+  const now = Date.now();
+  const prayerTime = prayerTimes.find((pt) => pt.prayerName === prayerName);
+  if (!prayerTime) return false;
+  const start = new Date(prayerTime.timestamp).getTime();
+  const end = new Date(prayerTime.endTime).getTime();
+  return now >= start && now < end;
+}
+
+function PrayerCountdown({ prayerName, timestamp, endTime }: PrayerTimeEntry) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const startMs = new Date(timestamp).getTime();
+  const endMs = new Date(endTime).getTime();
+  const startsIn = startMs - now;
+
+  if (startsIn > 0) {
+    return (
+      <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 ring-1 ring-primary/20">
+        <Clock className="h-5 w-5 text-primary shrink-0" />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-primary">Next: {PRAYER_DISPLAY[prayerName] ?? prayerName}</p>
+          <p className="text-xs text-muted-foreground">
+            Starts in <span className="font-semibold text-foreground">{formatDuration(startsIn)}</span>
+          </p>
+        </div>
+        <div className="text-right shrink-0">
+          <p className="text-lg font-bold text-primary tabular-nums">{formatDuration(startsIn)}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const remaining = endMs - now;
+  if (remaining > 0) {
+    const progress = Math.min((now - startMs) / (endMs - startMs), 1);
+    const remainingMinutes = remaining / 60000;
+    const urgent = remainingMinutes <= 15;
+    const warning = remainingMinutes <= 30;
+    const Icon = urgent ? TriangleAlert : Clock;
+
+    return (
+      <div className={`flex items-center gap-3 px-4 py-3 rounded-xl ${
+        urgent ? 'bg-destructive/10 ring-destructive/30'
+          : warning ? 'bg-amber-500/10 ring-amber-500/30'
+            : 'bg-accent/10 ring-accent/20'
+      } ring-1`}>
+        <Icon className={`h-5 w-5 ${urgent ? 'text-destructive' : warning ? 'text-amber-500' : 'text-accent'} shrink-0`} />
+        <div className="flex-1 min-w-0">
+          <p className={`text-sm font-medium ${urgent ? 'text-destructive' : warning ? 'text-amber-500' : 'text-accent-foreground'}`}>
+            {urgent ? '⚠️ ' : ''}Now: {PRAYER_DISPLAY[prayerName] ?? prayerName}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {urgent ? (
+              <span className="font-semibold text-destructive">{formatDuration(remaining)} left — Pray now!</span>
+            ) : warning ? (
+              <span className="font-semibold text-amber-500">{formatDuration(remaining)} remaining</span>
+            ) : (
+              <>Time remaining <span className="font-semibold text-foreground">{formatDuration(remaining)}</span></>
+            )}
+          </p>
+        </div>
+        <div className="relative h-10 w-10 shrink-0">
+          <svg className="h-10 w-10 -rotate-90" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="15" fill="none" stroke="currentColor" strokeWidth="3" className="text-muted/30" />
+            <circle
+              cx="18"
+              cy="18"
+              r="15"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeDasharray={`${94.25 * progress} 94.25`}
+              strokeLinecap="round"
+              className={urgent ? 'text-destructive' : warning ? 'text-amber-500' : 'text-accent'}
+            />
+          </svg>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 export function PrayerCardList({
@@ -76,17 +164,20 @@ export function PrayerCardList({
   const { user } = useAuth();
   const { checkAgain: checkMilestones } = useUnviewedMilestones();
   const completedCount = prayers.filter((p) => p.status).length;
+  const [, forceTick] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => forceTick((tick) => tick + 1), 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handlePrayerLogged = () => {
     onPrayerLogged();
     setTimeout(() => checkMilestones(), 1500);
   };
 
-  // Build a map of prayer times for quick lookup
-  const prayerTimeMap = new Map(prayerTimes.map(pt => [pt.prayerName, pt.time]));
-
-  // Determine which prayers are past their time slot
   const pastPrayers = getPastPrayers(prayerTimes);
+  const currentOrNextPrayer = getCurrentOrNextPrayer(prayerTimes);
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -96,7 +187,6 @@ export function PrayerCardList({
 
   return (
     <div>
-      {/* Greeting & date */}
       <div className="mb-5">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">
@@ -112,19 +202,24 @@ export function PrayerCardList({
         <p className="text-sm text-muted-foreground mt-0.5">{today}</p>
       </div>
 
-      {/* Prayer cards */}
+      {currentOrNextPrayer && (
+        <div className="mb-4">
+          <PrayerCountdown {...currentOrNextPrayer} />
+        </div>
+      )}
+
       <div className="space-y-3">
         {prayers.map((prayer) => (
           <PrayerCard
             key={prayer.prayerName}
             prayer={prayer}
             isPast={pastPrayers.has(prayer.prayerName) && !prayer.status}
+            isCurrent={isCurrentPrayer(prayer.prayerName, prayerTimes)}
             onLogged={handlePrayerLogged}
           />
         ))}
       </div>
 
-      {/* Compact stats row */}
       <div className="flex items-center justify-center gap-6 mt-5 py-3 px-4 rounded-xl bg-card ring-1 ring-foreground/5">
         <div className="flex items-center gap-1.5 text-sm">
           <Flame className="h-4 w-4 text-accent" />
@@ -145,7 +240,6 @@ export function PrayerCardList({
         </div>
       </div>
 
-      {/* Motivational message */}
       {completedCount > 0 && completedCount < 5 && (
         <p className="text-center text-sm text-muted-foreground mt-3">
           {5 - completedCount} more prayer{5 - completedCount !== 1 ? 's' : ''} to maintain your streak ✨

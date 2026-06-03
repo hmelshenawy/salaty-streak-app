@@ -1,7 +1,15 @@
 import { apiClient } from '@/lib/api';
-import { PrayerLog, CreatePrayerLogDto, UpdatePrayerLogDto } from '@/types/prayer';
+import { PrayerLog, CreatePrayerLogDto, UpdatePrayerLogDto, PrayerName } from '@/types/prayer';
 
 export const prayersService = {
+  async quickLog(data: { prayerName: PrayerName; date: string; inMosque?: boolean }): Promise<PrayerLog> {
+    return apiClient.post<PrayerLog>('/prayers', {
+      ...data,
+      status: 'ON_TIME',
+      prayedAt: new Date().toISOString(),
+    });
+  },
+
   async create(data: CreatePrayerLogDto): Promise<PrayerLog> {
     return apiClient.post<PrayerLog>('/prayers', data);
   },

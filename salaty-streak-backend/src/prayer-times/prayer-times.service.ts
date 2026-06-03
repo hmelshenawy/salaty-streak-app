@@ -1,13 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrayerName } from '@prisma/client';
-import { toZonedTime } from 'date-fns-tz';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { format } from 'date-fns';
 
 export interface PrayerTimeEntry {
   prayerName: PrayerName;
   time: string; // HH:mm format in user's timezone
   timestamp: Date; // UTC timestamp for comparison
+  endTime: Date; // UTC timestamp when the prayer window closes
+  windowMinutes: number;
 }
 
 export interface PrayerTimesResponse {
@@ -25,6 +27,14 @@ const ALADHAN_MAP: Record<string, PrayerName> = {
   Asr: 'ASR',
   Maghrib: 'MAGHRIB',
   Isha: 'ISHA',
+};
+
+const PRAYER_WINDOWS_MINUTES: Record<PrayerName, number> = {
+  FAJR: 90,
+  DHUHR: 120,
+  ASR: 120,
+  MAGHRIB: 90,
+  ISHA: 120,
 };
 
 /**
@@ -129,20 +139,19 @@ export class PrayerTimesService {
       const cleanTime = (timeStr as string).split(' ')[0];
       const [hours, minutes] = cleanTime.split(':').map(Number);
 
-      // Convert to UTC Date for comparison
-      const zonedDate = toZonedTime(new Date(), timezone);
-      const zonedYear = zonedDate.getFullYear();
-      const zonedMonth = zonedDate.getMonth();
-      const zonedDay = zonedDate.getDate();
-
-      // Create a date in the user's timezone then convert to UTC
-      const localDate = new Date(zonedYear, zonedMonth, zonedDay, hours, minutes, 0);
-      const utcTimestamp = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+      const utcTimestamp = fromZonedTime(
+        new Date(year, month - 1, day, hours, minutes, 0),
+        timezone,
+      );
+      const windowMinutes = PRAYER_WINDOWS_MINUTES[prayerName];
+      const endTime = new Date(utcTimestamp.getTime() + windowMinutes * 60000);
 
       times.push({
         prayerName,
         time: cleanTime,
         timestamp: utcTimestamp,
+        endTime,
+        windowMinutes,
       });
     }
 
@@ -179,14 +188,19 @@ export class PrayerTimesService {
 
     const times: PrayerTimeEntry[] = Object.entries(estimates).map(
       ([prayerName, { h, m }]) => {
-        const localDate = new Date(year, month - 1, day, h, m, 0);
-        const utcTimestamp = new Date(
-          localDate.getTime() - localDate.getTimezoneOffset() * 60000,
+        const typedPrayerName = prayerName as PrayerName;
+        const utcTimestamp = fromZonedTime(
+          new Date(year, month - 1, day, h, m, 0),
+          timezone,
         );
+        const windowMinutes = PRAYER_WINDOWS_MINUTES[typedPrayerName];
+        const endTime = new Date(utcTimestamp.getTime() + windowMinutes * 60000);
         return {
-          prayerName: prayerName as PrayerName,
+          prayerName: typedPrayerName,
           time: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
           timestamp: utcTimestamp,
+          endTime,
+          windowMinutes,
         };
       },
     );
