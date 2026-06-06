@@ -4,6 +4,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { DashboardResponse } from '@/types/dashboard';
 import { dashboardService } from '@/services/dashboard.service';
 
+/**
+ * useDashboard hook
+ *
+ * Fetches the full dashboard payload from `/dashboard`.
+ * The response shape is backward-compatible: all legacy fields are always present.
+ * New optional fields (`points`, `awards`, `timezone`) are populated when the
+ * backend feature flags are ON and the new dashboard engine is active.
+ * This hook is safe to use with both old and new response shapes.
+ */
 export function useDashboard() {
   const [data, setData] = useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);

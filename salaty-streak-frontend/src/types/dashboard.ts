@@ -1,5 +1,6 @@
 import { PrayerName, PrayerStatus } from './prayer';
 import { NextMilestone } from './milestone';
+import { AwardsSummary } from './award';
 
 export interface PrayerPeriod {
   label: 'early' | 'mid' | 'late';
@@ -28,6 +29,30 @@ export interface PrayerTimeEntry {
   windowMinutes: number;
 }
 
+export interface PointsBreakdown {
+  dailyCompletion: number;
+  streakBonus: number;
+  adjustment: number;
+}
+
+export interface PointsSummary {
+  total: number;
+  breakdown: PointsBreakdown;
+  recentTransactions: {
+    id: string;
+    points: number;
+    reason: string;
+    relatedDate: string;
+    description: string | null;
+    createdAt: string;
+  }[];
+}
+
+export interface TimezoneInfo {
+  value: string;
+  isDefaulted: boolean;
+}
+
 export interface DashboardResponse {
   currentStreak: number;
   bestStreak: number;
@@ -36,4 +61,9 @@ export interface DashboardResponse {
   todayPrayers: TodayPrayer[];
   nextMilestone: NextMilestone | null;
   prayerTimes: PrayerTimeEntry[];
+
+  // New fields (optional during transition)
+  points?: PointsSummary;
+  awards?: AwardsSummary;
+  timezone?: TimezoneInfo;
 }

@@ -8,14 +8,26 @@ import {
   Param,
   Query,
   Request,
+  BadRequestException,
 } from '@nestjs/common';
+import { PrayerName } from '@prisma/client';
 import { PrayersService } from './prayers.service';
 import { CreatePrayerLogDto } from './dto/create-prayer-log.dto';
 import { UpdatePrayerLogDto } from './dto/update-prayer-log.dto';
+import { TogglePrayerDto } from './dto/toggle-prayer.dto';
+import { PrayerParamsDto } from './dto/prayer-params.dto';
 
 @Controller('prayers')
 export class PrayersController {
   constructor(private readonly prayersService: PrayersService) {}
+
+  private validatePrayerType(raw: string): PrayerName {
+    const upper = raw.toUpperCase();
+    if (!Object.values(PrayerName).includes(upper as PrayerName)) {
+      throw new BadRequestException(`Invalid prayer type: ${raw}`);
+    }
+    return upper as PrayerName;
+  }
 
   @Post()
   create(
@@ -36,6 +48,26 @@ export class PrayersController {
     @Query('month') month?: string,
   ) {
     return this.prayersService.getHistory(req.user.sub, month);
+  }
+
+  @Post(':prayerType/complete')
+  complete(
+    @Request() req: { user: { sub: string } },
+    @Param() params: PrayerParamsDto,
+    @Body() dto?: TogglePrayerDto,
+  ) {
+    const prayerType = this.validatePrayerType(params.prayerType);
+    return this.prayersService.complete(req.user.sub, prayerType, dto?.date);
+  }
+
+  @Post(':prayerType/uncomplete')
+  uncomplete(
+    @Request() req: { user: { sub: string } },
+    @Param() params: PrayerParamsDto,
+    @Body() dto?: TogglePrayerDto,
+  ) {
+    const prayerType = this.validatePrayerType(params.prayerType);
+    return this.prayersService.uncomplete(req.user.sub, prayerType, dto?.date);
   }
 
   @Put(':id')

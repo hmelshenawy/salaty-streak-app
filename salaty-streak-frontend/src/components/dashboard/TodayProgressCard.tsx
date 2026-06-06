@@ -4,10 +4,11 @@ import { TodayPrayer } from '@/types/dashboard';
 import { PRAYER_LABELS, PRAYER_ICONS, STATUS_COLORS, STATUS_LABELS } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Clock, X } from 'lucide-react';
+import { Check, Clock, X, Star } from 'lucide-react';
 
 interface TodayProgressCardProps {
   prayers: TodayPrayer[];
+  pointsTotal?: number;
 }
 
 function PrayerStatusIcon({ status }: { status: TodayPrayer['status'] }) {
@@ -17,7 +18,7 @@ function PrayerStatusIcon({ status }: { status: TodayPrayer['status'] }) {
   return <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30" />;
 }
 
-export function TodayProgressCard({ prayers }: TodayProgressCardProps) {
+export function TodayProgressCard({ prayers, pointsTotal }: TodayProgressCardProps) {
   const completed = prayers.filter((p) => p.status !== null).length;
   const total = prayers.length;
 
@@ -65,6 +66,16 @@ export function TodayProgressCard({ prayers }: TodayProgressCardProps) {
             </div>
           ))}
         </div>
+
+        {/* Show today's points total when backend sends new points shape */}
+        {pointsTotal !== undefined && (
+          <div className="mt-4 pt-3 border-t border-border/50 flex items-center gap-2 text-sm text-muted-foreground">
+            <Star className="h-4 w-4 text-accent" />
+            <span>
+              Today&apos;s points: <span className="font-semibold text-foreground">{pointsTotal}</span>
+            </span>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

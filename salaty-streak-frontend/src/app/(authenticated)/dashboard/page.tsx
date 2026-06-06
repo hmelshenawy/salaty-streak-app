@@ -35,14 +35,58 @@ export default function DashboardPage() {
 
   if (!data) return null;
 
+  // Dashboard response is backward-compatible: old fields are always present.
+  // New fields (points, awards, timezone) are optional and rendered when available.
   return (
-    <PrayerCardList
-      prayers={data.todayPrayers}
-      prayerTimes={data.prayerTimes ?? []}
-      currentStreak={data.currentStreak}
-      monthlyPoints={data.monthlyPoints}
-      completionRate={data.completionRate}
-      onPrayerLogged={refresh}
-    />
+    <div className="space-y-6">
+      {/* Prayer cards with streak/points/completion from dashboard */}
+      <PrayerCardList
+        prayers={data.todayPrayers}
+        prayerTimes={data.prayerTimes ?? []}
+        currentStreak={data.currentStreak}
+        monthlyPoints={data.monthlyPoints}
+        completionRate={data.completionRate}
+        onPrayerLogged={refresh}
+      />
+
+      {/* New fields rendered only when backend sends them (flags ON) */}
+      {data.points && (
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Points</p>
+                <p className="text-2xl font-bold">{data.points.total}</p>
+              </div>
+              <div className="text-right text-xs text-muted-foreground space-y-1">
+                <p>Daily: {data.points.breakdown.dailyCompletion}</p>
+                <p>Bonus: {data.points.breakdown.streakBonus}</p>
+                {data.points.breakdown.adjustment !== 0 && (
+                  <p>Adj: {data.points.breakdown.adjustment}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {data.awards && data.awards.earned.length > 0 && (
+        <Card>
+          <CardContent className="py-4">
+            <p className="text-sm font-medium text-muted-foreground mb-2">Awards</p>
+            <div className="flex flex-wrap gap-2">
+              {data.awards.earned.map((award) => (
+                <span
+                  key={award.id}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium"
+                >
+                  {award.icon ?? '🏆'} {award.title}
+                </span>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

@@ -47,18 +47,26 @@ export function PrayerCard({ prayer, isPast, isCurrent = false, onLogged }: Pray
   const prayerName = prayer.prayerName;
   const Icon = ICONS[PRAYER_ICON_NAMES[prayerName]] || Sun;
 
-  const handleLog = async () => {
+  const handleComplete = async () => {
     setLoading(true);
     try {
-      await prayersService.quickLog({
-        prayerName,
-        date: new Date().toISOString().split('T')[0],
-        inMosque,
-      });
+      await prayersService.quickComplete(prayerName);
       setInMosque(false);
       onLogged();
     } catch (error) {
-      console.error('Failed to log prayer:', error);
+      console.error('Failed to complete prayer:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUncomplete = async () => {
+    setLoading(true);
+    try {
+      await prayersService.quickUncomplete(prayerName);
+      onLogged();
+    } catch (error) {
+      console.error('Failed to uncomplete prayer:', error);
     } finally {
       setLoading(false);
     }
@@ -136,6 +144,21 @@ export function PrayerCard({ prayer, isPast, isCurrent = false, onLogged }: Pray
             {STATUS_LABELS[prayer.status]}
           </Badge>
           {prayer.inMosque && <Badge variant="secondary" className="bg-primary/10 text-primary border-0 text-xs px-1.5">🕌</Badge>}
+          {(prayer.status === 'ON_TIME' || prayer.status === 'LATE') && !isPast && (
+            <button
+              type="button"
+              onClick={handleUncomplete}
+              disabled={loading}
+              className="text-xs text-muted-foreground hover:text-destructive transition-colors px-1"
+              title="Mark as missed"
+            >
+              {loading ? (
+                <span className="h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground inline-block" />
+              ) : (
+                <X className="h-3.5 w-3.5" />
+              )}
+            </button>
+          )}
         </div>
       ) : (
         <div className="flex items-center gap-2 shrink-0">
@@ -163,7 +186,7 @@ export function PrayerCard({ prayer, isPast, isCurrent = false, onLogged }: Pray
                   : 'bg-primary/80 hover:bg-primary text-primary-foreground'
             }`}
             disabled={loading || isPast}
-            onClick={handleLog}
+            onClick={handleComplete}
           >
             {loading ? (
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />

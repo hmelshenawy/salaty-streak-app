@@ -11,6 +11,8 @@ import { DailySummaryModule } from './daily-summary/daily-summary.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MilestonesModule } from './milestones/milestones.module';
 import { PrayerTimesModule } from './prayer-times/prayer-times.module';
+import { PointsModule } from './points/points.module';
+import { AwardsModule } from './awards/awards.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { PrayerTimesModule } from './prayer-times/prayer-times.module';
     MilestonesModule,
     PrayerTimesModule,
     DashboardModule,
+    PointsModule,
+    AwardsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useDashboard } from '@/hooks/useDashboard';
 import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,7 @@ import { apiClient } from '@/lib/api';
 
 export default function SettingsPage() {
   const { user, logout, refreshUser } = useAuth();
+  const { data: dashboard } = useDashboard();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -20,6 +22,10 @@ export default function SettingsPage() {
   }, []);
 
   if (!user) return null;
+
+  // Prefer timezone from dashboard (new field) when available; fall back to user profile
+  const timezone = dashboard?.timezone?.value ?? user.timezone;
+  const isDefaultedTimezone = dashboard?.timezone?.isDefaulted ?? false;
 
   const themeOptions = [
     { value: 'dark', label: 'Dark', icon: Moon },
@@ -95,7 +101,12 @@ export default function SettingsPage() {
               <Label className="flex items-center gap-2 text-muted-foreground text-xs">
                 <Globe className="h-3.5 w-3.5" /> Timezone
               </Label>
-              <p className="font-medium text-sm">{user.timezone}</p>
+              <p className="font-medium text-sm">
+                {timezone}
+                {isDefaultedTimezone && (
+                  <span className="text-muted-foreground text-xs ml-1">(default)</span>
+                )}
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label className="flex items-center gap-2 text-muted-foreground text-xs">
